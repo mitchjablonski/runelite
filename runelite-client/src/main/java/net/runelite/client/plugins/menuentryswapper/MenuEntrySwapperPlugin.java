@@ -189,9 +189,20 @@ public class MenuEntrySwapperPlugin extends Plugin
 		swap("talk-to", target -> shouldSwapPickpocket(target), "pickpocket", config::swapPickpocket);
 
 
-		for (String item : config.CONSTRUCTION_ITEMS) {
+		for (String item : config.CONSTRUCTION_ITEMS_DEFAULT){
 			swap("examine", target -> target.contains(item), "build",
-					() -> (client.getVar(BUILDING_MODE) == 1) && config.getEasyConstruction());
+					() -> (client.getVar(BUILDING_MODE) == 1) && config.getEasyConstruction() &&
+							(config.getConstructionItems() == ConstructionMode.DEFAULT));
+		}
+		for (String item : config.CONSTRUCTION_ITEMS_DOORS){
+			swap("examine", target -> target.contains(item), "build",
+					() -> (client.getVar(BUILDING_MODE) == 1) && config.getEasyConstruction() &&
+							(config.getConstructionItems() == ConstructionMode.DOORS));
+		}
+		for (String item : config.CONSTRUCTION_ITEMS_DUNGEONS){
+			swap("examine", target -> target.contains(item), "build",
+					() -> (client.getVar(BUILDING_MODE) == 1) && config.getEasyConstruction() &&
+							(config.getConstructionItems() == ConstructionMode.DUNGEONS));
 		}
 
 		swap("talk-to", "rionasta", "send-parcel", config::swapHardWoodGroveParcel);
@@ -570,7 +581,8 @@ public class MenuEntrySwapperPlugin extends Plugin
 		//!config.getConstructionItems().equals("")
 		if (config.getEasyConstruction()  &&
 				(client.getVar(BUILDING_MODE) == 1) &&
-				(config.CONSTRUCTION_ITEMS.length > 0))
+				(getCurrentConstructionItems().length > 0))
+				//(config.CONSTRUCTION_ITEMS.length > 0))
 		{
 			MenuEntry[] entries = client.getMenuEntries();
 			if (menuEntryAdded.getType() == WALK.getId()) {
@@ -583,7 +595,8 @@ public class MenuEntrySwapperPlugin extends Plugin
 
 			swap("build", option, config::getEasyConstruction);
 			for (int i = entries.length - 1; i >= 0; i--) {
-				for (String item : config.CONSTRUCTION_ITEMS) { // config.getConstructionItems().split(",")
+				for (String item : getCurrentConstructionItems()){
+					//config.CONSTRUCTION_ITEMS) { // config.getConstructionItems().split(",")
 					if (item.equalsIgnoreCase(Text.removeTags(entries[i].getTarget()))) { //trim().
 						if (!entries[i].getOption().equalsIgnoreCase("remove")) {
 							entries = ArrayUtils.remove(entries, i);
@@ -893,5 +906,25 @@ public class MenuEntrySwapperPlugin extends Plugin
 	private boolean shiftModifier()
 	{
 		return client.isKeyPressed(KeyCode.KC_SHIFT);
+	}
+
+	public String[] getCurrentConstructionItems(){
+		if (config.getConstructionItems() == ConstructionMode.DEFAULT)
+		{
+			return config.CONSTRUCTION_ITEMS_DEFAULT;
+		}
+		else if (config.getConstructionItems() == ConstructionMode.DOORS)
+		{
+			return config.CONSTRUCTION_ITEMS_DOORS;
+		}
+		else if (config.getConstructionItems() == ConstructionMode.DUNGEONS)
+		{
+			return config.CONSTRUCTION_ITEMS_DUNGEONS;
+		}
+		else
+		{
+			String[] CONSTRUCTION_ITEMS = {};
+			return CONSTRUCTION_ITEMS;
+		}
 	}
 }

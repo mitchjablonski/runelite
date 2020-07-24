@@ -24,10 +24,13 @@
  */
 package net.runelite.client.plugins.menuentryswapper;
 
+import com.google.common.collect.ImmutableSet;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 import net.runelite.client.config.ConfigSection;
+
+import java.util.Set;
 
 @ConfigGroup(MenuEntrySwapperConfig.GROUP)
 public interface MenuEntrySwapperConfig extends Config
@@ -563,10 +566,12 @@ public interface MenuEntrySwapperConfig extends Config
 		return false;
 	}
 
+	String mitchCustom = "mitch custom";
 	@ConfigItem(
 			keyName = "swapPickpocket",
 			name = "Pickpocket",
-			description = "Swap Talk-to with Pickpocket"
+			description = "Swap Talk-to with Pickpocket",
+			section = mitchCustom
 	)
 	default boolean swapPickpocket()
 	{
@@ -577,21 +582,26 @@ public interface MenuEntrySwapperConfig extends Config
 	@ConfigItem(
 			keyName = "getEasyConstruction",
 			name = "Easy Construction",
-			description = "Makes 'Remove'/'Build' the default option for listed items."
+			description = "Makes 'Remove'/'Build' the default option for listed items.",
+			section = mitchCustom
 	)
 	default boolean getEasyConstruction()
 	{
 		return true;
 	}
+
 	@ConfigItem(
 			keyName = "constructionItems",
 			name = "Construction Items",
 			description = "",
-			position = 4
+			position = 4,
+			section = mitchCustom
 	)
 
-	default String getConstructionItems() {
-		return "Larder, Bookcase, chair";
+	default String[] getConstructionItems() {
+		return CONSTRUCTION_ITEMS;
 	}
+
+	public static final String[]  CONSTRUCTION_ITEMS = {"larder", "bookcase", "chair"};
 
 }

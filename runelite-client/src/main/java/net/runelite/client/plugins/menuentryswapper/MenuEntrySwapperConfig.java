@@ -591,17 +591,19 @@ public interface MenuEntrySwapperConfig extends Config
 	}
 
 	@ConfigItem(
-			keyName = "constructionItems",
+			keyName = "getConstructionItems",
 			name = "Construction Items",
 			description = "",
 			position = 4,
 			section = mitchCustom
 	)
+	default ConstructionMode getConstructionItems() {
 
-	default String[] getConstructionItems() {
-		return CONSTRUCTION_ITEMS;
+		return ConstructionMode.DEFAULT;
 	}
 
-	public static final String[]  CONSTRUCTION_ITEMS = {"larder", "bookcase", "chair"};
+	public String[] CONSTRUCTION_ITEMS_DEFAULT = {"larder", "bookcase", "chair"};
+	public String[] CONSTRUCTION_ITEMS_DOORS = {"door"};
+	public String[] CONSTRUCTION_ITEMS_DUNGEONS = {"dungeon"};
 
 }

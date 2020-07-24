@@ -69,7 +69,10 @@ import net.runelite.client.menus.WidgetMenuOption;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.util.Text;
+import static net.runelite.api.Varbits.BUILDING_MODE;
 import org.apache.commons.lang3.ArrayUtils;
+import static net.runelite.api.MenuAction.MENU_ACTION_DEPRIORITIZE_OFFSET;
+import static net.runelite.api.MenuAction.WALK;
 
 @PluginDescriptor(
 	name = "Menu Entry Swapper",
@@ -173,10 +176,24 @@ public class MenuEntrySwapperPlugin extends Plugin
 		swaps.clear();
 	}
 
+	private static boolean shouldSwapPickpocket(String target)
+	{
+		return !target.startsWith("villager") && !target.startsWith("bandit") && !target.startsWith("menaphite thug");
+	}
+
 	@VisibleForTesting
 	void setupSwaps()
 	{
 		swap("talk-to", "mage of zamorak", "teleport", config::swapAbyssTeleport);
+		swap("attack", target -> shouldSwapPickpocket(target), "pickpocket", config::swapPickpocket);
+		swap("talk-to", target -> shouldSwapPickpocket(target), "pickpocket", config::swapPickpocket);
+		swap("sit-on","remove", () -> (client.getVar(BUILDING_MODE) == 1) && config.getEasyConstruction());
+		swap("search","remove", () -> (client.getVar(BUILDING_MODE) == 1) && config.getEasyConstruction());
+		swap("walk here", "build", () -> (client.getVar(BUILDING_MODE) == 1) && config.getEasyConstruction());
+		swap("search", "larder", "remove",  config::getEasyConstruction);
+
+		//swap("examine", "build", () -> (client.getVar(BUILDING_MODE) == 1) && config.getEasyConstruction());
+
 		swap("talk-to", "rionasta", "send-parcel", config::swapHardWoodGroveParcel);
 		swap("talk-to", "captain khaled", "task", config::swapCaptainKhaled);
 		swap("talk-to", "bank", config::swapBank);
@@ -548,7 +565,39 @@ public class MenuEntrySwapperPlugin extends Plugin
 			final int opId = shiftWithdrawMode.getIdentifier();
 			bankModeSwap(actionId, opId);
 		}
-	}
+		final String option = Text.removeTags(menuEntryAdded.getOption()).toLowerCase();
+		final String target = Text.removeTags(menuEntryAdded.getTarget()).toLowerCase();
+
+		if (config.getEasyConstruction() && !config.getConstructionItems().equals("")  &&
+				(client.getVar(BUILDING_MODE) == 1)) {
+			MenuEntry[] entries = client.getMenuEntries();
+			if (menuEntryAdded.getType() == WALK.getId()) {
+				MenuEntry menuEntry = entries[entries.length - 1];
+				menuEntry.setType(MenuAction.WALK.getId() + MENU_ACTION_DEPRIORITIZE_OFFSET);
+				client.setMenuEntries(entries);
+			}
+
+			//swap(client, "Build", option, target);
+
+			//if target.startsWith()
+
+			swap("build", option, config::getEasyConstruction);
+
+			for (int i = entries.length - 1; i >= 0; i--) {
+				for (String item : config.getConstructionItems().split(",")) {
+					if (item.trim().equalsIgnoreCase(Text.removeTags(entries[i].getTarget()))) {
+						if (!entries[i].getOption().equalsIgnoreCase("remove")) {
+							entries = ArrayUtils.remove(entries, i);
+							i--;
+						}
+					}
+				}
+			}
+			client.setMenuEntries(entries);
+		}
+			//client.setMenuEntries(entries);
+		}
+
 
 	private void bankModeSwap(int entryTypeId, int entryIdentifier)
 	{
@@ -570,6 +619,10 @@ public class MenuEntrySwapperPlugin extends Plugin
 				break;
 			}
 		}
+	}
+	public void loadConstructionOptions()
+	{
+		boolean buildingMode = client.getVar(BUILDING_MODE) == 1;
 	}
 
 	@Subscribe

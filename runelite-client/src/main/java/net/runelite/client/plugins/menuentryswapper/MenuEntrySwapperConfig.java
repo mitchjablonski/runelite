@@ -562,4 +562,36 @@ public interface MenuEntrySwapperConfig extends Config
 	{
 		return false;
 	}
+
+	@ConfigItem(
+			keyName = "swapPickpocket",
+			name = "Pickpocket",
+			description = "Swap Talk-to with Pickpocket"
+	)
+	default boolean swapPickpocket()
+	{
+		return true;
+	}
+
+
+	@ConfigItem(
+			keyName = "getEasyConstruction",
+			name = "Easy Construction",
+			description = "Makes 'Remove'/'Build' the default option for listed items."
+	)
+	default boolean getEasyConstruction()
+	{
+		return true;
+	}
+	@ConfigItem(
+			keyName = "constructionItems",
+			name = "Construction Items",
+			description = "",
+			position = 4
+	)
+
+	default String getConstructionItems() {
+		return "Larder, Bookcase, chair";
+	}
+
 }

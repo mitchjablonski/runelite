@@ -66,7 +66,10 @@ public enum Varbits
 	RUNE_POUCH_AMOUNT1(1624),
 	RUNE_POUCH_AMOUNT2(1625),
 	RUNE_POUCH_AMOUNT3(1626),
-
+	/**
+	 * POH Building mode (1 = yes, 0 = no)
+	 */
+	BUILDING_MODE(2176),
 	/**
 	 * Prayers
 	 */

@@ -187,12 +187,12 @@ public class MenuEntrySwapperPlugin extends Plugin
 		swap("talk-to", "mage of zamorak", "teleport", config::swapAbyssTeleport);
 		swap("attack", target -> shouldSwapPickpocket(target), "pickpocket", config::swapPickpocket);
 		swap("talk-to", target -> shouldSwapPickpocket(target), "pickpocket", config::swapPickpocket);
-		swap("sit-on","remove", () -> (client.getVar(BUILDING_MODE) == 1) && config.getEasyConstruction());
-		swap("search","remove", () -> (client.getVar(BUILDING_MODE) == 1) && config.getEasyConstruction());
-		swap("walk here", "build", () -> (client.getVar(BUILDING_MODE) == 1) && config.getEasyConstruction());
-		swap("search", "larder", "remove",  config::getEasyConstruction);
 
-		//swap("examine", "build", () -> (client.getVar(BUILDING_MODE) == 1) && config.getEasyConstruction());
+
+		for (String item : config.CONSTRUCTION_ITEMS) {
+			swap("examine", target -> target.contains(item), "build",
+					() -> (client.getVar(BUILDING_MODE) == 1) && config.getEasyConstruction());
+		}
 
 		swap("talk-to", "rionasta", "send-parcel", config::swapHardWoodGroveParcel);
 		swap("talk-to", "captain khaled", "task", config::swapCaptainKhaled);
@@ -566,10 +566,12 @@ public class MenuEntrySwapperPlugin extends Plugin
 			bankModeSwap(actionId, opId);
 		}
 		final String option = Text.removeTags(menuEntryAdded.getOption()).toLowerCase();
-		final String target = Text.removeTags(menuEntryAdded.getTarget()).toLowerCase();
-
-		if (config.getEasyConstruction() && !config.getConstructionItems().equals("")  &&
-				(client.getVar(BUILDING_MODE) == 1)) {
+		final String target = Text.removeTags(menuEntryAdded.getTarget()).toLowerCase();;
+		//!config.getConstructionItems().equals("")
+		if (config.getEasyConstruction()  &&
+				(client.getVar(BUILDING_MODE) == 1) &&
+				(config.CONSTRUCTION_ITEMS.length > 0))
+		{
 			MenuEntry[] entries = client.getMenuEntries();
 			if (menuEntryAdded.getType() == WALK.getId()) {
 				MenuEntry menuEntry = entries[entries.length - 1];
@@ -579,13 +581,10 @@ public class MenuEntrySwapperPlugin extends Plugin
 
 			//swap(client, "Build", option, target);
 
-			//if target.startsWith()
-
 			swap("build", option, config::getEasyConstruction);
-
 			for (int i = entries.length - 1; i >= 0; i--) {
-				for (String item : config.getConstructionItems().split(",")) {
-					if (item.trim().equalsIgnoreCase(Text.removeTags(entries[i].getTarget()))) {
+				for (String item : config.CONSTRUCTION_ITEMS) { // config.getConstructionItems().split(",")
+					if (item.equalsIgnoreCase(Text.removeTags(entries[i].getTarget()))) { //trim().
 						if (!entries[i].getOption().equalsIgnoreCase("remove")) {
 							entries = ArrayUtils.remove(entries, i);
 							i--;
@@ -595,10 +594,13 @@ public class MenuEntrySwapperPlugin extends Plugin
 			}
 			client.setMenuEntries(entries);
 		}
-			//client.setMenuEntries(entries);
+
 		}
 
-
+	private boolean checkIfContainsConstructionItem(String conItem, String targetItem)
+	{
+		return targetItem.toLowerCase().contains(conItem.toLowerCase());
+	}
 	private void bankModeSwap(int entryTypeId, int entryIdentifier)
 	{
 		MenuEntry[] menuEntries = client.getMenuEntries();
@@ -735,7 +737,6 @@ public class MenuEntrySwapperPlugin extends Plugin
 		{
 			return;
 		}
-
 		MenuEntry[] menuEntries = client.getMenuEntries();
 
 		// Build option map for quick lookup in findIndex
